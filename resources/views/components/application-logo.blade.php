@@ -1,0 +1,1 @@
+{{-- <img class="mx-auto h-12 w-auto" src="{{ asset('images/Myapp.Webp') }}" alt="{{ config('app.name') }} Logo"> --}}
