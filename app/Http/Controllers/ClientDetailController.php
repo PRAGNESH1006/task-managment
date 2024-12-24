@@ -12,7 +12,7 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Throwable;
 
-class ClientDetailController extends Controller
+class ClientDetailController extends BaseController
 {
     protected ClientDetailRepository $clientDetailRepository;
     protected UserRepository $userRepository;
@@ -46,10 +46,10 @@ class ClientDetailController extends Controller
         try {
             $this->clientDetailRepository->store($request->getInsertableFields());
             DB::commit();
-            return redirect()->route('clientDetails.index')->with('success', 'Client Detail Added Successfully');
+            return $this->sendRedirectResponse(route('client-details.index'), 'Client Detail Added Successfully');
         } catch (Throwable $e) {
             DB::rollBack();
-            return redirect()->route('clientDetails.create')->with('error', $e->getMessage());
+            return $this->sendRedirectBackError($e->getMessage());
         }
     }
 
@@ -65,10 +65,10 @@ class ClientDetailController extends Controller
         try {
             $this->clientDetailRepository->update($clientDetail->id, $request->getInsertableFields());
             DB::commit();
-            return redirect()->route('clientDetails.index')->with('success', 'Client Detail Updated Successfully');
+            return $this->sendRedirectResponse(route('client-details.index'), 'Client Detail Updated Successfully');
         } catch (Throwable $e) {
             DB::rollBack();
-            return redirect()->route('clientDetails.edit', $clientDetail->id)->with('error', $e->getMessage());
+            return $this->sendRedirectBackError($e->getMessage());
         }
     }
 
@@ -78,10 +78,10 @@ class ClientDetailController extends Controller
         try {
             $this->clientDetailRepository->destroy($clientDetail->id);
             DB::commit();
-            return redirect()->route('clientDetails.index')->with('success', 'Client Detail Deleted Successfully');
+            return $this->sendRedirectResponse(route('clientDetails.index'), 'Client Detail Deleted Successfully');
         } catch (Throwable $e) {
             DB::rollBack();
-            return redirect()->route('clientDetails.index')->with('error', $e->getMessage());
+            return $this->sendRedirectError(route('clientDetails.index'), $e->getMessage());
         }
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class UpdateProjectRequest extends FormRequest
 {
@@ -23,11 +24,13 @@ class UpdateProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string', 
-            'client_id' => 'required|exists:users,id', 
-            'start_date' => 'required|date', 
-            'end_date' => 'nullable|date|after_or_equal:start_date', 
+            'name' => ['required', 'string', 'max:255', Rule::unique('projects')->ignore($this->project)],
+            'description' => 'required|string',
+            'client_id' => 'required|string|exists:users,id',
+            'start_date' => 'required|date',
+            'employee_ids' => 'required|array', 
+            'employee_ids.*' => 'exists:users,id', 
+            'end_date' => 'required|date|after_or_equal:start_date',
         ];
     }
 
@@ -35,9 +38,9 @@ class UpdateProjectRequest extends FormRequest
     {
         return [
             'name' => $this->input('name'),
-            'description' => $this->input('description'),   
+            'description' => $this->input('description'),
             'client_id' => $this->input('client_id'),
-            'updated_by' => Auth::user()->id, 
+            'updated_by' => Auth::user()->id,
             'start_date' => $this->input('start_date'),
             'end_date' => $this->input('end_date'),
         ];

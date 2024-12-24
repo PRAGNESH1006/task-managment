@@ -64,14 +64,12 @@
 
                     <div>
                         <label for="assigned_to" class="text-sm text-gray-700">Assigned To</label>
-                        <select name="assigned_to" id="assigned_to"
-                            class="mt-1 block w-full p-3 rounded-lg border-gray-300  @error('assigned_to') border-red-500 @enderror">
-                            @foreach ($employees as $employee)
-                                <option value="{{ $employee->id }}"
-                                    {{ old('assigned_to', $task->assigned_to) == $employee->id ? 'selected' : '' }}>
-                                    {{ $employee->name }}</option>
-                            @endforeach
-                        </select>
+                        <input type="text" name="assigned_to" id="assigned_to"
+                            class="mt-1 block w-full p-3 rounded-lg border-gray-300 @error('assigned_to') border-red-500 @enderror"
+                            value="{{ $employees->firstWhere('id', old('assigned_to', $task->assigned_to))->name ?? 'No employee assigned' }}"
+                            readonly>
+
+
                         @error('assigned_to')
                             <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
                         @enderror

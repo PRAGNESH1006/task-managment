@@ -6,7 +6,7 @@
             <div class="bg-white shadow-md rounded-lg overflow-hidden">
                 <div class="p-4 sm:p-6">
                     <div class="flex justify-between items-center mb-4">
-                        <h1 class="text-2xl font-semibold text-gray-800">Create New User</h1>
+                        <h1 class="text-2xl font-semibold text-gray-800">Create New {{ ucfirst($role) }}</h1>
                         <a href="{{ url()->previous() }}"
                             class="inline-flex items-center px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded transition duration-300">
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -19,14 +19,12 @@
                     </div>
                     <form action="{{ route('users.store') }}" method="POST" class="space-y-4">
                         @csrf
-
                         <div class="grid grid-cols-1 gap-y-4 gap-x-4 sm:grid-cols-2">
                             <div class="sm:col-span-2">
                                 <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
                                 <div class="mt-1">
                                     <input type="text" name="name" id="name" value="{{ old('name') }}"
-                                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('name') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror"
-                                        required>
+                                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('name') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror">
                                 </div>
                                 @error('name')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -37,8 +35,7 @@
                                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                                 <div class="mt-1">
                                     <input type="email" name="email" id="email" value="{{ old('email') }}"
-                                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('email') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror"
-                                        required>
+                                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('email') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror">
                                 </div>
                                 @error('email')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -49,8 +46,7 @@
                                 <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
                                 <div class="mt-1">
                                     <input type="password" name="password" id="password"
-                                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('password') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror"
-                                        required>
+                                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('password') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror">
                                 </div>
                                 @error('password')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -60,39 +56,43 @@
                             <div class="sm:col-span-2">
                                 <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
                                 <div class="mt-1">
-                                    <select name="role" id="role"
-                                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('role') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror"
-                                        required>
-                                        <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                                        <option value="employee" {{ old('role') == 'employee' ? 'selected' : '' }}>Employee
-                                        </option>
-                                        <option value="client" {{ old('role') == 'client' ? 'selected' : '' }}>Client
-                                        </option>
-                                    </select>
+                                    <input type="text" name="role" id="role" value="{{ $role }}" readonly
+                                        class="shadow-sm bg-gray-100 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md cursor-not-allowed">
                                 </div>
-                                @error('role')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
                             </div>
+
+                            @if ($role === 'client')
+                                <div class="sm:col-span-2">
+                                    <label for="company_name" class="block text-sm font-medium text-gray-700">Company Name</label>
+                                    <div class="mt-1">
+                                        <input type="text" name="company_name" id="company_name" value="{{ old('company_name') }}"
+                                            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                </div>
+
+                                <div class="sm:col-span-2">
+                                    <label for="contact_number" class="block text-sm font-medium text-gray-700">Contact Number</label>
+                                    <div class="mt-1">
+                                        <input type="text" name="contact_number" id="contact_number" value="{{ old('contact_number') }}"
+                                            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                </div>
+                            @endif
                         </div>
 
                         <div class="flex justify-end mt-4">
                             <button type="submit"
                                 class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out transform hover:scale-105">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z">
-                                    </path>
-                                </svg>
                                 Create User
                             </button>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>
     </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             @if (session('success'))

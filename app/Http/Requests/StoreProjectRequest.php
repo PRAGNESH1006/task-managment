@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class StoreProjectRequest extends FormRequest
 {
@@ -23,24 +24,25 @@ class StoreProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'client_id' => 'nullable|string',
+            'name' => ['required', 'string', 'max:255', Rule::unique('projects')],
+            'description' => 'required|string',
+            'client_id' => 'required|string|exists:users,id',
+           'employee_ids' => 'required|array', 
+            'employee_ids.*' => 'exists:users,id',
             'start_date' => 'required|date',
-            'employee_id' => 'nullable|exists:users,id',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'end_date' => 'required|date|after_or_equal:start_date', 
         ];
     }
-    
+
 
     public function getInsertableFields(): array
     {
         return [
             'name' => $this->input('name'),
-            'description' => $this->input('description'),   
+            'description' => $this->input('description'),
             'client_id' => $this->input('client_id'),
-            'created_by' => Auth::user()->id,  
-            'updated_by' => null, 
+            'created_by' => Auth::user()->id,
+            'updated_by' => null,
             'start_date' => $this->input('start_date'),
             'end_date' => $this->input('end_date'),
         ];

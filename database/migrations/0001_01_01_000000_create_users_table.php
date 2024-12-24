@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('email')->unique();
-            $table->enum('role', ['admin', 'employee', 'client']);
+            $table->string('role');
             $table->foreignUuid('created_by')->nullable()->references('id')->on('users')->nullOnDelete();
             $table->foreignUuid('updated_by')->nullable()->references('id')->on('users')->nullOnDelete();
             $table->timestamp('email_verified_at')->nullable();

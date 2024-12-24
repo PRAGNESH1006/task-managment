@@ -32,9 +32,9 @@ Route::middleware('auth')->group(function () {
         Route::get('admin/dashboard', [AdminDashboardController::class, 'show'])->name('admin.dashboard');
         Route::get('allClients', [ClientDashboardController::class, 'index'])->name('client.index');
         Route::get('allEmployees', [EmployeeDashboardController::class, 'index'])->name('employee.index');
-        Route::resource('users', UserController::class);
     });
-
+    Route::resource('users', UserController::class);
+        
     Route::middleware(['role:client'])->group(function () {
         Route::get('client/dashboard', [ClientDashboardController::class, 'show'])->name('client.dashboard');
         Route::get('client/{user}/tasks', [ClientDashboardController::class, 'tasks'])->name('client.tasks');

@@ -13,7 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
 
-class ProjectController extends Controller
+class ProjectController extends BaseController
 {
     protected ProjectRepository $projectRepository;
     protected UserRepository $userRepository;
@@ -55,15 +55,15 @@ class ProjectController extends Controller
         try {
             $project = $this->projectRepository->store($request->getInsertableFields());
 
-            if ($request->has('employee_id') && !empty($request->employee_id)) {
-                $project->users()->attach($request->employee_id);
+            if ($request->has('employee_ids') && !empty($request->employee_ids)) {
+                $project->users()->attach($request->employee_ids);
             }
 
             DB::commit();
-            return redirect()->route(Auth::user()->role .'.dashboard')->with('success', 'Project Added Successfully');
+            return $this->sendRedirectResponse(route('projects.index'), 'Project Added Successfully');
         } catch (Throwable $e) {
             DB::rollBack();
-            return redirect()->route('projects.create')->with('error', $e->getMessage());
+            return $this->sendRedirectBackError($e->getMessage());
         }
     }
 
@@ -71,12 +71,16 @@ class ProjectController extends Controller
     {
         DB::beginTransaction();
         try {
-            $this->projectRepository->update($project->id, $request->getInsertableFields());
+            $project = $this->projectRepository->update($project->id,$request->getInsertableFields());
+
+            if ($request->has('employee_ids') && !empty($request->employee_ids)) {
+                $project->users()->sync($request->employee_ids);
+            }
             DB::commit();
-            return redirect()->route(Auth::user()->role .'.dashboard')->with('success', 'Project Updated Successfully');
+            return $this->sendRedirectResponse(route('projects.index'), 'Project Updated Successfully');
         } catch (Throwable $e) {
             DB::rollBack();
-            return redirect()->route('projects.edit', $project->id)->with('error', $e->getMessage());
+            return $this->sendRedirectBackError($e->getMessage());
         }
     }
 
@@ -86,10 +90,10 @@ class ProjectController extends Controller
         try {
             $this->projectRepository->destroy($project->id);
             DB::commit();
-            return redirect()->route(Auth::user()->role .'.dashboard')->with('success', 'Project Deleted Successfully');
+            return $this->sendRedirectResponse(route('projects.index'), 'Project Deleted Successfully');
         } catch (Throwable $e) {
             DB::rollBack();
-            return redirect()->route('projects.index')->with('error', $e->getMessage());
+            return $this->sendRedirectError(route('projects.index'), $e->getMessage());
         }
     }
 }

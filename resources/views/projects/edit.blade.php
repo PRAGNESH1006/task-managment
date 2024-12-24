@@ -7,9 +7,9 @@
                 <div class="p-6 sm:p-10">
                     <div class="flex justify-between items-center mb-6">
                         <h1 class="text-3xl font-bold text-gray-900">Edit Project</h1>
-                        <a href="{{ url()->previous() }}"
-                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-600 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        <a href="{{ route('projects.index') }}"
+                            class="inline-flex items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded-md transition duration-300">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -28,7 +28,7 @@
                                 <div class="mt-1">
                                     <input type="text" name="name" id="name"
                                         class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                        value="{{ old('name', $project->name) }}" required>
+                                        value="{{ old('name', $project->name) }}">
                                 </div>
                                 @error('name')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -39,8 +39,7 @@
                                 <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
                                 <div class="mt-1">
                                     <textarea name="description" id="description" rows="4"
-                                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                        required>{{ old('description', $project->description) }}</textarea>
+                                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">{{ old('description', $project->description) }}</textarea>
                                 </div>
                                 @error('description')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -67,35 +66,29 @@
                             </div>
 
                             <div>
-                                <label for="employee_id" class="block text-sm font-medium text-gray-700">Assign
-                                    Employee</label>
+                                <label for="employee_ids" class="block text-sm font-medium text-gray-700">Assign
+                                    Employees</label>
                                 <div class="mt-1">
-                                    <select name="employee_id" id="employee_id"
+                                    <select name="employee_ids[]" id="employee_ids" multiple
                                         class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
-                                        <option value=""
-                                            {{ old('employee_id', $project->users->isEmpty()) ? 'selected' : '' }}>No
-                                            Employee</option>
                                         @foreach ($employees as $employee)
                                             <option value="{{ $employee->id }}"
-                                                {{ old('employee_id', $project->users->contains('id', $employee->id)) ? 'selected' : '' }}>
+                                                {{ in_array($employee->id, old('employee_ids', $project->users->pluck('id')->toArray())) ? 'selected' : '' }}>
                                                 {{ $employee->name }}
                                             </option>
                                         @endforeach
                                     </select>
                                 </div>
-                                @error('employee_id')
+                                @error('employee_ids')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
-
-
-
                             <div>
                                 <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
                                 <div class="mt-1">
                                     <input type="date" name="start_date" id="start_date"
                                         class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                        value="{{ old('start_date', $project->start_date->toDateString()) }}" required>
+                                        value="{{ old('start_date', $project->start_date->toDateString()) }}">
                                 </div>
                                 @error('start_date')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -133,16 +126,19 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            @if (session('success'))
-                showToast('{{ session('success') }}', 'success');
-            @endif
+            const sessionMessage = @json(session('message'));
 
-            @if (session('error'))
-                showToast('{{ session('error') }}', 'error');
-            @endif
+            if (sessionMessage) {
+                const {
+                    status,
+                    description
+                } = sessionMessage;
+                showToast(description, status);
+            }
         });
 
         function showToast(message, type) {
+            // Ensure toast container exists
             let toastContainer = document.getElementById('toast-container');
             if (!toastContainer) {
                 toastContainer = document.createElement('div');
@@ -151,21 +147,26 @@
                 document.body.appendChild(toastContainer);
             }
 
+            // Create toast element
             const toast = document.createElement('div');
-            toast.className = `toast px-6 py-3 rounded-lg shadow-lg text-white transition-opacity duration-500 ease-in-out ${
-            type === 'success' ? 'bg-green-500' : 'bg-red-500'
-        }`;
+            toast.className = `toast px-6 py-3 rounded-lg shadow-lg text-white transition-all duration-500 ease-in-out transform ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    }`;
             toast.innerText = message;
+
+            // Append to container
             toastContainer.appendChild(toast);
+
+            // Set timer for automatic dismissal
             setTimeout(() => {
-                toast.classList.add('opacity-0');
+                toast.classList.add('opacity-0', 'translate-x-2');
                 setTimeout(() => {
                     toast.remove();
-                    if (toastContainer.children.length === 0) {
+                    if (!toastContainer.children.length) {
                         toastContainer.remove();
                     }
-                }, 500);
-            }, 5000);
+                }, 500); // Wait for fade-out transition to complete
+            }, 5000); // Toast visible duration
         }
     </script>
 @endsection

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->text('description');
-            $table->enum('status', ['pending', 'in_progress', 'completed']);
+            $table->string('status');
             $table->foreignUuid('project_id')->constrained('projects')
                   ->onDelete('cascade');
             $table->foreignUuid('assigned_to')->constrained('users')

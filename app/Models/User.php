@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\RoleEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -35,6 +36,7 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'role' => RoleEnum::class,
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
@@ -56,19 +58,20 @@ class User extends Authenticatable
         return $this->belongsToMany(Project::class, 'project_employees', 'user_id', 'project_id');
     }
 
-    public function hasRole($role): bool
+    public function hasRole(RoleEnum $role): bool
     {
         return $this->role === $role;
     }
+
 
     public function assignedTasks(): HasMany
     {
         return $this->hasMany(Task::class, 'assigned_to');
     }
 
-    public function createdTask(): HasOne
+    public function createdTasks(): HasMany
     {
-        return $this->hasOne(Task::class, 'created_by');
+        return $this->hasMany(Task::class, 'created_by');
     }
 
     public function updatedTask(): HasMany

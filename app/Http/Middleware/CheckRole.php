@@ -9,12 +9,14 @@ class CheckRole
 {
     public function handle(Request $request, Closure $next, string $role): Response
     {
+
+
         $user = $request->user();
         if (!$user) {
             abort(403, 'User not authenticated.');
         }
         
-        if ($user->role !== $role) {
+        if ($user->role->value !== $role) {
             abort(403, 'Unauthorized action.');
         }
     

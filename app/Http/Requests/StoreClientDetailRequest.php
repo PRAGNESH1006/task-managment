@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
 
 class StoreClientDetailRequest extends FormRequest
 {
@@ -34,5 +36,10 @@ class StoreClientDetailRequest extends FormRequest
             'company_name' => $this->input('company_name'),
             'contact_number' => $this->input('contact_number'),
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json($validator->errors(), 422));
     }
 }

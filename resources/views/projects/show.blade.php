@@ -10,7 +10,16 @@
                             <h1 class="text-3xl font-bold text-white">{{ $project->name }}</h1>
                         </div>
                         <div class="flex space-x-2">
-                            @if (Auth::user()->id === $project->created_by || Auth::user()->role == 'admin')
+                            <a href="{{ route('projects.index') }}"
+                            class="inline-flex items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded-md transition duration-300">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Back
+                        </a>
+                            @if (Auth::user()->id === $project->created_by || Auth::user()->role->value == 'admin')
                                 <a href="{{ route('projects.edit', $project->id) }}"
                                     class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition duration-300">
                                     Edit
@@ -111,7 +120,7 @@
                                                     class="text-2xl font-semibold text-blue-600">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
                                             </div>
                                             <p class="font-medium text-gray-900">{{ $user->name }}</p>
-                                            <p class="text-sm text-gray-600">{{ ucfirst($user->role) }}</p>
+                                            <p class="text-sm text-gray-600">{{ ucfirst($user->role->value) }}</p>
                                         </div>
                                     @endforeach
                                 </div>
@@ -137,16 +146,19 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            @if (session('success'))
-                showToast('{{ session('success') }}', 'success');
-            @endif
+            const sessionMessage = @json(session('message'));
 
-            @if (session('error'))
-                showToast('{{ session('error') }}', 'error');
-            @endif
+            if (sessionMessage) {
+                const {
+                    status,
+                    description
+                } = sessionMessage;
+                showToast(description, status);
+            }
         });
 
         function showToast(message, type) {
+            // Ensure toast container exists
             let toastContainer = document.getElementById('toast-container');
             if (!toastContainer) {
                 toastContainer = document.createElement('div');
@@ -155,21 +167,26 @@
                 document.body.appendChild(toastContainer);
             }
 
+            // Create toast element
             const toast = document.createElement('div');
-            toast.className = `toast px-6 py-3 rounded-lg shadow-lg text-white transition-opacity duration-500 ease-in-out ${
-                type === 'success' ? 'bg-green-500' : 'bg-red-500'
-            }`;
+            toast.className = `toast px-6 py-3 rounded-lg shadow-lg text-white transition-all duration-500 ease-in-out transform ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    }`;
             toast.innerText = message;
+
+            // Append to container
             toastContainer.appendChild(toast);
+
+            // Set timer for automatic dismissal
             setTimeout(() => {
-                toast.classList.add('opacity-0');
+                toast.classList.add('opacity-0', 'translate-x-2');
                 setTimeout(() => {
                     toast.remove();
-                    if (toastContainer.children.length === 0) {
+                    if (!toastContainer.children.length) {
                         toastContainer.remove();
                     }
-                }, 500);
-            }, 5000);
+                }, 500); // Wait for fade-out transition to complete
+            }, 5000); // Toast visible duration
         }
     </script>
 @endsection

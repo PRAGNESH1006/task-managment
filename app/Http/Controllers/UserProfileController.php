@@ -3,21 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
-use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Storage;
 
-class UserProfileController extends Controller
+class UserProfileController extends BaseController
 {
     /**
      * Display the user's profile form.
      */
-
-
     public function index(): View
     {
         return view('profile.index')->with('user', Auth::user());
@@ -33,9 +28,8 @@ class UserProfileController extends Controller
 
         $user->save();
 
-        return Redirect::route('profile.index')->with('success', 'Profile updated successfully!');
+        return $this->sendRedirectResponse(route('profile.index'), 'Profile updated successfully!');
     }
-
 
     /**
      * Delete the user's account.
@@ -55,6 +49,6 @@ class UserProfileController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return Redirect::to('/');
+        return $this->sendRedirectResponse('/', 'Account deleted successfully!');
     }
 }

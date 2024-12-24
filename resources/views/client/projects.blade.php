@@ -46,16 +46,19 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            @if (session('success'))
-                showToast('{{ session('success') }}', 'success');
-            @endif
+            const sessionMessage = @json(session('message'));
 
-            @if (session('error'))
-                showToast('{{ session('error') }}', 'error');
-            @endif
+            if (sessionMessage) {
+                const {
+                    status,
+                    description
+                } = sessionMessage;
+                showToast(description, status);
+            }
         });
 
         function showToast(message, type) {
+            // Ensure toast container exists
             let toastContainer = document.getElementById('toast-container');
             if (!toastContainer) {
                 toastContainer = document.createElement('div');
@@ -64,21 +67,26 @@
                 document.body.appendChild(toastContainer);
             }
 
+            // Create toast element
             const toast = document.createElement('div');
-            toast.className = `toast px-6 py-3 rounded-lg shadow-lg text-white transition-opacity duration-500 ease-in-out ${
-                type === 'success' ? 'bg-green-500' : 'bg-red-500'
-            }`;
+            toast.className = `toast px-6 py-3 rounded-lg shadow-lg text-white transition-all duration-500 ease-in-out transform ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    }`;
             toast.innerText = message;
+
+            // Append to container
             toastContainer.appendChild(toast);
+
+            // Set timer for automatic dismissal
             setTimeout(() => {
-                toast.classList.add('opacity-0');
+                toast.classList.add('opacity-0', 'translate-x-2');
                 setTimeout(() => {
                     toast.remove();
-                    if (toastContainer.children.length === 0) {
+                    if (!toastContainer.children.length) {
                         toastContainer.remove();
                     }
-                }, 500);
-            }, 5000);
+                }, 500); // Wait for fade-out transition to complete
+            }, 5000); // Toast visible duration
         }
     </script>
 @endsection

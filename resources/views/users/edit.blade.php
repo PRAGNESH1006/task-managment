@@ -1,17 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="bg-gray-100 pt-4 flex justify-center items-center">
-        <div id="toast-container" class="fixed top-0 right-0 p-4 space-y-4 z-50"></div>
-
-        <div class="container px-4 sm:px-6 lg:px-8 w-full sm:w-1/2">
-            <div class="bg-white shadow-xl rounded-lg overflow-hidden">
-                <div class="p-6 sm:p-10">
-                    <div class="flex justify-between items-center mb-6">
-                        <h1 class="text-3xl font-bold text-gray-900">Edit User</h1>
+{{-- @dd($clientDetail) --}}
+    <div class="bg-gray-100 min-h-screen flex justify-center items-center overflow-hidden">
+        <div class="container px-4 sm:px-6 lg:px-8 w-full sm:w-1/3">
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <div class="p-4 sm:p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h1 class="text-2xl font-semibold text-gray-800">Edit {{ ucfirst($user->role->value) }}</h1>
                         <a href="{{ url()->previous() }}"
-                            class="inline-flex items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded-md transition duration-300">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            class="inline-flex items-center px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded transition duration-300">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -19,75 +18,72 @@
                             Back
                         </a>
                     </div>
-
-                    <form action="{{ route('users.update', $user->id) }}" method="POST" class="space-y-6">
+                    <form action="{{ route('users.update', $user->id) }}" method="POST" class="space-y-4">
                         @csrf
                         @method('PUT')
-
-                        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                        <div class="grid grid-cols-1 gap-y-4 gap-x-4 sm:grid-cols-2">
                             <div class="sm:col-span-2">
                                 <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
                                 <div class="mt-1">
-                                    <input type="text" name="name" id="name"
-                                        value="{{ old('name', $user->name) }}"
-                                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('name') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror"
-                                        required>
+                                    <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}"
+                                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('name') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror">
                                 </div>
                                 @error('name')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <div class="sm:col-span-2">
                                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                                 <div class="mt-1">
-                                    <input type="email" name="email" id="email"
-                                        value="{{ old('email', $user->email) }}"
-                                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('email') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror"
-                                        required>
+                                    <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}"
+                                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('email') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror">
                                 </div>
                                 @error('email')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <div class="sm:col-span-2">
                                 <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
                                 <div class="mt-1">
-                                    <select name="role" id="role"
-                                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md @error('role') border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500 @enderror"
-                                        required>
-                                        <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>
-                                            Admin</option>
-                                        <option value="employee"
-                                            {{ old('role', $user->role) == 'employee' ? 'selected' : '' }}>Employee</option>
-                                        <option value="client" {{ old('role', $user->role) == 'client' ? 'selected' : '' }}>
-                                            Client</option>
-                                    </select>
+                                    <input type="text" name="role" id="role" value="{{ $user->role->value }}" readonly
+                                        class="shadow-sm bg-gray-100 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md cursor-not-allowed">
                                 </div>
-                                @error('role')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
                             </div>
+
+                            @if ($user->role->value === 'client')
+                                <div class="sm:col-span-2">
+                                    <label for="company_name" class="block text-sm font-medium text-gray-700">Company Name</label>
+                                    <div class="mt-1">
+                                        <input type="text" name="company_name" id="company_name" value="{{ old('company_name', $clientDetail->company_name) }}"
+                                            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                </div>
+
+                                <div class="sm:col-span-2">
+                                    <label for="contact_number" class="block text-sm font-medium text-gray-700">Contact Number</label>
+                                    <div class="mt-1">
+                                        <input type="text" name="contact_number" id="contact_number" value="{{ old('contact_number', $clientDetail->contact_number) }}"
+                                            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                </div>
+                            @endif
                         </div>
 
-                        <div class="flex justify-end mt-6">
+                        <div class="flex justify-end mt-4">
                             <button type="submit"
-                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out transform hover:scale-105">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z">
-                                    </path>
-                                </svg>
+                                class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out transform hover:scale-105">
                                 Update User
                             </button>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>
     </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             @if (session('success'))

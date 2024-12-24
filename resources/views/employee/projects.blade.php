@@ -29,32 +29,33 @@
                             <a href="{{ route('projects.show', $project->id) }}"
                                 class="text-indigo-600 hover:text-indigo-900 font-medium transition duration-200">View
                                 Details</a>
-                            @if(Auth::user()->role === 'admin')
-                            <div class="flex space-x-2">
-                                <a href="{{ route('projects.edit', $project->id) }}"
-                                    class="text-yellow-600 hover:text-yellow-900 transition duration-200">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-                                        </path>
-                                    </svg>
-                                </a>
-                                <form action="{{ route('projects.destroy', $project->id) }}" method="POST"
-                                    class="inline-block">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900 transition duration-200"
-                                        onclick="return confirm('Are you sure you want to delete this project?')">
+                            @if (Auth::user()->role === 'admin')
+                                <div class="flex space-x-2">
+                                    <a href="{{ route('projects.edit', $project->id) }}"
+                                        class="text-yellow-600 hover:text-yellow-900 transition duration-200">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
                                             </path>
                                         </svg>
-                                    </button>
-                                </form>
-                            </div>
+                                    </a>
+                                    <form action="{{ route('projects.destroy', $project->id) }}" method="POST"
+                                        class="inline-block">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="text-red-600 hover:text-red-900 transition duration-200"
+                                            onclick="return confirm('Are you sure you want to delete this project?')">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                </path>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
                             @endif
                         </div>
                     </div>
@@ -64,16 +65,19 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            @if (session('success'))
-                showToast('{{ session('success') }}', 'success');
-            @endif
+            const sessionMessage = @json(session('message'));
 
-            @if (session('error'))
-                showToast('{{ session('error') }}', 'error');
-            @endif
+            if (sessionMessage) {
+                const {
+                    status,
+                    description
+                } = sessionMessage;
+                showToast(description, status);
+            }
         });
 
         function showToast(message, type) {
+            // Ensure toast container exists
             let toastContainer = document.getElementById('toast-container');
             if (!toastContainer) {
                 toastContainer = document.createElement('div');
@@ -82,21 +86,26 @@
                 document.body.appendChild(toastContainer);
             }
 
+            // Create toast element
             const toast = document.createElement('div');
-            toast.className = `toast px-6 py-3 rounded-lg shadow-lg text-white transition-opacity duration-500 ease-in-out ${
-                type === 'success' ? 'bg-green-500' : 'bg-red-500'
-            }`;
+            toast.className = `toast px-6 py-3 rounded-lg shadow-lg text-white transition-all duration-500 ease-in-out transform ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    }`;
             toast.innerText = message;
+
+            // Append to container
             toastContainer.appendChild(toast);
+
+            // Set timer for automatic dismissal
             setTimeout(() => {
-                toast.classList.add('opacity-0');
+                toast.classList.add('opacity-0', 'translate-x-2');
                 setTimeout(() => {
                     toast.remove();
-                    if (toastContainer.children.length === 0) {
+                    if (!toastContainer.children.length) {
                         toastContainer.remove();
                     }
-                }, 500);
-            }, 5000);
+                }, 500); // Wait for fade-out transition to complete
+            }, 5000); // Toast visible duration
         }
     </script>
 @endsection

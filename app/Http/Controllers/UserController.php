@@ -4,21 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Repositories\UserRepository;
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StoreUserOrClientRequest;
+use App\Http\Requests\UpdateUserOrClientRequest;
+use App\Repositories\ClientDetailRepository;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Throwable;
 
-class UserController extends Controller
+class UserController extends BaseController
 {
-    protected UserRepository $userRepository;
+    protected $userRepository;
+    protected $clientDetailRepository;
 
-    public function __construct(UserRepository $userRepository)
+    public function __construct(UserRepository $userRepository, ClientDetailRepository $clientDetailRepository)
     {
         $this->userRepository = $userRepository;
+        $this->clientDetailRepository = $clientDetailRepository;
     }
 
     public function index(): View
@@ -27,46 +29,78 @@ class UserController extends Controller
         return view('users.index', compact('users'));
     }
 
-    public function show(User $user)
+    public function show(User $user): View
     {
         return view('users.show', compact('user'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('users.create');
+        $role = $request->query('role', '');
+        $validRoles = ['admin', 'employee', 'client'];
+        if (!in_array($role, $validRoles)) {
+            $role = '';
+        }
+
+        return view('users.create', compact('role'));
     }
 
-    public function store(StoreUserRequest $request)
+    public function store(StoreUserOrClientRequest $request)
     {
         DB::beginTransaction();
         try {
-            $this->userRepository->store($request->getInsertableFields());
+            $userData = $request->getInsertableFields();
+
+            $user = $this->userRepository->store($userData);
+
+            if ($user->role === 'client') {
+                $clientDetailData = [
+                    'user_id' => $user->id,
+                    'company_name' => $request->input('company_name'),
+                    'contact_number' => $request->input('contact_number'),
+                ];
+                $this->clientDetailRepository->store($clientDetailData);
+            }
+
             DB::commit();
-            return redirect()->route(Auth::user()->role .'.dashboard')->with('success', 'User Added Successfully');
+
+            return $this->sendRedirectResponse(route($user->role->value . '.index'), 'User and Client Details Added Successfully');
         } catch (Throwable $e) {
             DB::rollBack();
-            return redirect()->route('users.create')->with('error', $e->getMessage());
+            return $this->sendRedirectError(route('users.create'), 'Failed to add user and client details: ' . $e->getMessage());
         }
     }
 
     public function edit(User $user): View
     {
-        return view('users.edit', compact('user'));
+        $clientDetail = $user->clientDetail;
+        return view('users.edit', compact('user', 'clientDetail'));
     }
 
-    public function update(User $user, UpdateUserRequest $request)
+    public function update(User $user, UpdateUserOrClientRequest $request)
     {
         DB::beginTransaction();
         try {
-            $this->userRepository->update($user->id, $request->getUpdateableFields());
+            $userData = $request->getUpdateableFields();
+            $user = $this->userRepository->update($user->id, $userData);
+            if ($user->role === 'client') {
+                $clientDetailData = [
+                    'user_id' => $user->id,
+                    'company_name' => $request->input('company_name'),
+                    'contact_number' => $request->input('contact_number'),
+                ];
+                $this->clientDetailRepository->update($user->id, $clientDetailData);
+            }
             DB::commit();
-            return redirect()->route(Auth::user()->role .'.dashboard')->with('success', 'User Updated Successfully');
+
+            return $this->sendRedirectResponse(route($user->role->value . '.index'), 'User Updated Successfully');
         } catch (Throwable $e) {
             DB::rollBack();
-            return redirect()->route('users.edit', $user->id)->with('error', $e->getMessage());
+            return $this->sendRedirectError(route('users.edit', $user->id), 'Failed to update user: ' . $e->getMessage());
         }
     }
+
+
 
     public function destroy(User $user)
     {
@@ -74,10 +108,10 @@ class UserController extends Controller
         try {
             $this->userRepository->destroy($user->id);
             DB::commit();
-            return redirect()->route(Auth::user()->role .'.dashboard')->with('success', 'User Deleted Successfully');
+            return $this->sendRedirectResponse(route($user->role->value . '.index'), 'User Deleted Successfully');
         } catch (Throwable $e) {
             DB::rollBack();
-            return redirect()->route('users.index')->with('error', $e->getMessage());
+            return $this->sendRedirectError(route('users.index'), 'Failed to delete user: ' . $e->getMessage());
         }
     }
 }

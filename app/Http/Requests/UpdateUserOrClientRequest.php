@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
-class UpdateUserRequest extends FormRequest
+class UpdateUserOrClientRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,9 +28,11 @@ class UpdateUserRequest extends FormRequest
             'email' => [
                 'required',
                 'email',
-                Rule::unique('users')->ignore($this->route('user')), 
+                Rule::unique('users')->ignore($this->route('user')),  // Ignore the current user's email
             ],
             'role' => 'required|in:admin,employee,client',
+            'company_name' => 'required_if:role,client|string|max:255',  // For client role, validate company_name
+            'contact_number' => 'required_if:role,client|string|max:20',  // For client role, validate contact_number
         ];
     }
 
@@ -41,13 +43,18 @@ class UpdateUserRequest extends FormRequest
      */
     public function getUpdateableFields(): array
     {
-        return [
+        $updateData = [
             'name' => $this->input('name'),
             'email' => $this->input('email'),
             'role' => $this->input('role'),
             'updated_by' => Auth::user()->id,
         ];
 
-        
+        if ($this->input('role') === 'client') {
+            $updateData['company_name'] = $this->input('company_name');
+            $updateData['contact_number'] = $this->input('contact_number');
+        }
+
+        return $updateData;
     }
 }

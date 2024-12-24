@@ -10,7 +10,7 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Admin User
+      
         User::updateOrCreate([
             'id' => Str::uuid(),
         ], [

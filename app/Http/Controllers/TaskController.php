@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\TaskStatusEnum;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
@@ -11,11 +12,10 @@ use App\Repositories\UserRepository;
 use App\Repositories\ProjectRepository;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Throwable;
 use Illuminate\Support\Facades\Log;
 
-class TaskController extends Controller
+class TaskController extends BaseController
 {
     protected TaskRepository $taskRepository;
     protected UserRepository $userRepository;
@@ -41,9 +41,10 @@ class TaskController extends Controller
 
     public function create(): View
     {
+        $status = TaskStatusEnum::options();
         $employees = $this->userRepository->getAllUserByRole('employee');
         $projects = $this->projectRepository->getAll();
-        return view('tasks.create', compact('employees', 'projects'));
+        return view('tasks.create', compact('employees', 'projects', 'status'));
     }
 
     public function store(StoreTaskRequest $request): RedirectResponse
@@ -52,19 +53,21 @@ class TaskController extends Controller
         try {
             $this->taskRepository->store($request->getInsertableFields());
             DB::commit();
-            return redirect()->route(Auth::user()->role .'.dashboard')->with('success', 'Task Added Successfully');
+            return $this->sendRedirectResponse(route('tasks.index'), 'Task Added Successfully');
         } catch (Throwable $e) {
             DB::rollBack();
             Log::error('Task store failed: ' . $e->getMessage());
-            return redirect()->route('tasks.create')->with('error', 'Failed to add task');
+            return $this->sendRedirectError(route('tasks.create'), 'Failed to add task::' . $e->getMessage());
         }
     }
 
     public function edit(Task $task): View
     {
+        $status = TaskStatusEnum::options();
         $task = $this->taskRepository->getById($task->id);
         $employees = $this->userRepository->getAllUserByRole('employee');
-        return view('tasks.edit', compact('task', 'employees'));
+
+        return view('tasks.edit', compact('task', 'employees','status'));
     }
 
     public function update(Task $task, UpdateTaskRequest $request): RedirectResponse
@@ -73,11 +76,11 @@ class TaskController extends Controller
         try {
             $this->taskRepository->update($task->id, $request->getUpdateableFields($task->project_id));
             DB::commit();
-            return redirect()->route(Auth::user()->role .'.dashboard')->with('success', 'Task Updated Successfully');
+            return $this->sendRedirectResponse(route('tasks.index'), 'Task Updated Successfully');
         } catch (Throwable $e) {
             DB::rollBack();
             Log::error('Task update failed: ' . $e->getMessage());
-            return redirect()->route('tasks.edit', $task->id)->with('error', 'Failed to update task');
+            return $this->sendRedirectError(route('tasks.edit', $task->id), 'Failed to update task::' . $e->getMessage());
         }
     }
 
@@ -87,11 +90,11 @@ class TaskController extends Controller
         try {
             $this->taskRepository->destroy($task->id);
             DB::commit();
-            return redirect()->route(Auth::user()->role .'.dashboard')->with('success', 'Task Deleted Successfully');
+            return $this->sendRedirectResponse(route('tasks.index'), 'Task Deleted Successfully');
         } catch (Throwable $e) {
             DB::rollBack();
             Log::error('Task delete failed: ' . $e->getMessage());
-            return redirect()->route('tasks.index')->with('error', 'Failed to delete task');
+            return $this->sendRedirectError(route('tasks.index'), 'Failed to delete task::' . $e->getMessage());
         }
     }
 }

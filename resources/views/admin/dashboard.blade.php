@@ -2,14 +2,15 @@
 
 @section('content')
     <div class="bg-gray-100 min-h-screen py-8">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8"><div class="bg-white shadow-md rounded-lg p-6 mb-8">
-            <div class="flex justify-between items-center">
-                <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-                <div class="flex items-center space-x-4">
-                    <span class="text-sm text-gray-500">Welcome, {{ Auth::user()->name }}</span>
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-gray-500">Welcome, {{ Auth::user()->name }}</span>
+                    </div>
                 </div>
             </div>
-        </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div class="bg-white rounded-lg shadow-md overflow-hidden ">
                     <div class="p-6">
@@ -266,7 +267,7 @@
                                         <p><strong class="text-gray-700">Email:</strong> <span
                                                 class="text-gray-800">{{ $employee->email }}</span></p>
                                         <p><strong class="text-gray-700">Role:</strong> <span
-                                                class="text-gray-800">{{ ucfirst($employee->role) }}</span></p>
+                                                class="text-gray-800">{{ ucfirst($employee->role->value) }}</span></p>
                                         <p><strong class="text-gray-700">Joined:</strong> <span
                                                 class="text-gray-800">{{ $employee->created_at->format('M d, Y') }}</span>
                                         </p>
@@ -281,16 +282,19 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            @if (session('success'))
-                showToast('{{ session('success') }}', 'success');
-            @endif
+            const sessionMessage = @json(session('message'));
 
-            @if (session('error'))
-                showToast('{{ session('error') }}', 'error');
-            @endif
+            if (sessionMessage) {
+                const {
+                    status,
+                    description
+                } = sessionMessage;
+                showToast(description, status);
+            }
         });
 
         function showToast(message, type) {
+            // Ensure toast container exists
             let toastContainer = document.getElementById('toast-container');
             if (!toastContainer) {
                 toastContainer = document.createElement('div');
@@ -299,21 +303,26 @@
                 document.body.appendChild(toastContainer);
             }
 
+            // Create toast element
             const toast = document.createElement('div');
-            toast.className = `toast px-6 py-3 rounded-lg shadow-lg text-white transition-opacity duration-500 ease-in-out ${
-            type === 'success' ? 'bg-green-500' : 'bg-red-500'
-        }`;
+            toast.className = `toast px-6 py-3 rounded-lg shadow-lg text-white transition-all duration-500 ease-in-out transform ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    }`;
             toast.innerText = message;
+
+            // Append to container
             toastContainer.appendChild(toast);
+
+            // Set timer for automatic dismissal
             setTimeout(() => {
-                toast.classList.add('opacity-0');
+                toast.classList.add('opacity-0', 'translate-x-2');
                 setTimeout(() => {
                     toast.remove();
-                    if (toastContainer.children.length === 0) {
+                    if (!toastContainer.children.length) {
                         toastContainer.remove();
                     }
-                }, 500);
-            }, 5000);
+                }, 500); // Wait for fade-out transition to complete
+            }, 5000); // Toast visible duration
         }
     </script>
 @endsection
