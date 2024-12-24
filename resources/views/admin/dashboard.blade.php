@@ -6,8 +6,9 @@
             <div class="bg-white shadow-md rounded-lg p-6 mb-8">
                 <div class="flex justify-between items-center">
                     <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-                    <div class="flex items-center space-x-4">
+                    <div class="flex flex-col items-center space-x-4">
                         <span class="text-sm text-gray-500">Welcome, {{ Auth::user()->name }}</span>
+                        <a class="text-sm text-left text-blue-500" href="{{route('users.create',['role'=>'admin'])}}">Add New Admin</a>
                     </div>
                 </div>
             </div>
@@ -96,7 +97,7 @@
                         <p class="text-3xl font-bold text-gray-700">{{ $clientCount }}</p>
                         <p class="text-gray-600">Total Clients</p>
                         <div class="mt-4 flex justify-between">
-                            <a href="{{ route('users.create') }}"
+                            <a href="{{ route('users.create',['role'=>'client']) }}"
                                 class="text-sm text-purple-500 hover:underline flex items-center">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                     xmlns="http://www.w3.org/2000/svg">
@@ -131,7 +132,7 @@
                         <p class="text-3xl font-bold text-gray-700">{{ $employeeCount }}</p>
                         <p class="text-gray-600">Total Employees</p>
                         <div class="mt-4 flex justify-between">
-                            <a href="{{ route('users.create') }}"
+                            <a href="{{ route('users.create',['role'=>'employee']) }}"
                                 class="text-sm text-yellow-500 hover:underline flex items-center">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                     xmlns="http://www.w3.org/2000/svg">
@@ -208,8 +209,7 @@
                                         <span> Updated:
                                             {{ \Carbon\Carbon::parse($task['updated_at'])->diffForHumans() }}</span>
                                     </div>
-                                    <div class="text-xs">Updated By: <a href=""
-                                            class="text-blue-400">{{ $project->updater->name }}</a></div>
+                                    
                                 </div>
                             @endforeach
                         </div>

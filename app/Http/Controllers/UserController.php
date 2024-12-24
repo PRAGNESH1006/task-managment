@@ -50,9 +50,8 @@ class UserController extends BaseController
         DB::beginTransaction();
         try {
             $userData = $request->getInsertableFields();
-
             $user = $this->userRepository->store($userData);
-
+            
             if ($user->role === 'client') {
                 $clientDetailData = [
                     'user_id' => $user->id,
@@ -61,10 +60,14 @@ class UserController extends BaseController
                 ];
                 $this->clientDetailRepository->store($clientDetailData);
             }
-
             DB::commit();
 
-            return $this->sendRedirectResponse(route($user->role->value . '.index'), 'User and Client Details Added Successfully');
+            if ($user->role->value == 'admin') {
+                return $this->sendRedirectResponse(route('users.index'), 'User and Client Details Added Successfully');
+            } else {
+                return $this->sendRedirectResponse(route($user->role->value . '.index'), 'User and Client Details Added Successfully');
+            }
+            
         } catch (Throwable $e) {
             DB::rollBack();
             return $this->sendRedirectError(route('users.create'), 'Failed to add user and client details: ' . $e->getMessage());

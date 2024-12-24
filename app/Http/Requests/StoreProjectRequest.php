@@ -27,10 +27,10 @@ class StoreProjectRequest extends FormRequest
             'name' => ['required', 'string', 'max:255', Rule::unique('projects')],
             'description' => 'required|string',
             'client_id' => 'required|string|exists:users,id',
-           'employee_ids' => 'required|array', 
+            'employee_ids' => 'required|array',
             'employee_ids.*' => 'exists:users,id',
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date', 
+            'end_date' => 'required|date|after_or_equal:start_date',
         ];
     }
 

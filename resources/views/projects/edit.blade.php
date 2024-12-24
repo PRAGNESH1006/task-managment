@@ -65,24 +65,26 @@
                                 @enderror
                             </div>
 
-                            <div>
-                                <label for="employee_ids" class="block text-sm font-medium text-gray-700">Assign
-                                    Employees</label>
-                                <div class="mt-1">
-                                    <select name="employee_ids[]" id="employee_ids" multiple
-                                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
-                                        @foreach ($employees as $employee)
-                                            <option value="{{ $employee->id }}"
-                                                {{ in_array($employee->id, old('employee_ids', $project->users->pluck('id')->toArray())) ? 'selected' : '' }}>
-                                                {{ $employee->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                            <div class="space-y-4 ">
+                                <label class="block text-sm font-medium text-gray-700">Assign Employees</label>
+                                <div class=" max-h-16 overflow-y-auto p-1">
+                                    @foreach ($employees as $employee)
+                                        <div class="flex items-center space-x-3">
+                                            <input type="checkbox" name="employee_ids[]" value="{{ $employee->id }}"
+                                                id="employee_{{ $employee->id }}"
+                                                {{ in_array($employee->id, old('employee_ids', $project->users->pluck('id')->toArray())) ? 'checked' : '' }}
+                                                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                            <label for="employee_{{ $employee->id }}"
+                                                class="text-sm text-gray-700">{{ $employee->name }}</label>
+                                        </div>
+                                    @endforeach
                                 </div>
+
                                 @error('employee_ids')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
+
                             <div>
                                 <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
                                 <div class="mt-1">

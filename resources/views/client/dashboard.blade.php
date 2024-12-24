@@ -225,8 +225,9 @@
                                         <span> Updated:
                                             {{ \Carbon\Carbon::parse($task['updated_at'])->diffForHumans() }}</span>
                                     </div>
-                                    <div class="text-xs">Updated By: <a href=""
-                                            class="text-blue-400">{{ $project->updater->name }}</a></div>
+                                    <div class="text-xs">Updated By: <a href="{{route('users.show', $task->updater->id)}}"
+                                            class="text-blue-400"> {{$task->updater->name}} </a>
+                                        </div>
                                 </div>
                             @endforeach
                         </div>

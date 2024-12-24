@@ -59,61 +59,64 @@
                                 @enderror
                             </div>
                             {{-- employee --}}
-                            <div>
-                                <label for="employee_ids" class="block text-sm font-medium text-gray-700">Assign Employees</label>
-                                <div class="mt-1">
-                                    <select name="employee_ids[]" id="employee_ids" multiple
-                                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
-                                        @foreach ($employees as $employee)
-                                            <option value="{{ $employee->id }}"
-                                                {{ in_array($employee->id, old('employee_ids', [])) ? 'selected' : '' }}>
-                                                {{ $employee->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                            <div class="space-y-4">
+                                <label class="block text-sm font-medium text-gray-700">Assign Employees</label>
+
+                                <div class="mt-1 space-y-2 max-h-16 overflow-y-auto p-1 ">
+                                    @foreach ($employees as $employee)
+                                        <div class="flex items-center space-x-3">
+                                            <input type="checkbox" name="employee_ids[]" value="{{ $employee->id }}"
+                                                id="employee_{{ $employee->id }}"
+                                                {{ in_array($employee->id, old('employee_ids', [])) ? 'checked' : '' }}
+                                                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                            <label for="employee_{{ $employee->id }}"
+                                                class="text-sm text-gray-700">{{ $employee->name }}</label>
+                                        </div>
+                                    @endforeach
                                 </div>
                                 @error('employee_ids')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
-                        <div>
-                            <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
-                            <div class="mt-1">
-                                <input type="date" name="start_date" id="start_date"
-                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                    value="{{ old('start_date') }}">
+
+                            <div>
+                                <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
+                                <div class="mt-1">
+                                    <input type="date" name="start_date" id="start_date"
+                                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                        value="{{ old('start_date') }}">
+                                </div>
+                                @error('start_date')
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
-                            @error('start_date')
-                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        <div>
-                            <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
-                            <div class="mt-1">
-                                <input type="date" name="end_date" id="end_date"
-                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                                    value="{{ old('end_date') }}">
+                            <div>
+                                <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
+                                <div class="mt-1">
+                                    <input type="date" name="end_date" id="end_date"
+                                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                        value="{{ old('end_date') }}">
+                                </div>
+                                @error('end_date')
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
-                            @error('end_date')
-                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
                         </div>
+                        <div class="flex justify-end mt-6">
+                            <button type="submit"
+                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out transform hover:scale-105">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Create Project
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <div class="flex justify-end mt-6">
-                    <button type="submit"
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out transform hover:scale-105">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
-                        Create Project
-                    </button>
-                </div>
-                </form>
             </div>
         </div>
-    </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
